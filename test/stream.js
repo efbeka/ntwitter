@@ -25,7 +25,7 @@ describe('Streaming with twitter sample data', function() {
       }, 50000);
       
       stream.on('destroy', function(msg) {
-        received.length.should.be.above(0);
+        received.length.should.be.above(1);
         done();
       });
     });
