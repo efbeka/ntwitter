@@ -13,7 +13,7 @@ var twitter = new ntwitter({
 
 var received = [];
 
-describe('Streaming with twitter sample data', function() {
+describe('Twitter streaming with sample data', function() {
   it('GET statuses/sample', function(done) {
     twitter.stream('statuses/sample', function(stream) {
       stream.on('data', function (data) {
@@ -28,6 +28,23 @@ describe('Streaming with twitter sample data', function() {
         received.length.should.be.above(1);
         done();
       });
+    });
+  });
+
+  it('GET statuses/sample as a native stream and pipe to a file', function(done) {
+    twitter.stream('statuses/sample', function(stream) {
+      var output = fs.createWriteStream('./out.json');
+      stream
+        .pipe(output)
+        .on('end', function(tweet) {
+          received = JSON.parse(fs.readFileSync('out.json'));
+          received.length.should.be.above(1);
+          done();
+        });
+
+      setTimeout(function() {
+        stream.destroy();
+      }, 50000);
     });
   });
 });
