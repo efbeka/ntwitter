@@ -11,40 +11,22 @@ var twitter = new ntwitter({
   access_token_secret: config.token_secret
 });
 
-var received = [];
-
 describe('Twitter streaming with sample data', function() {
-  it('GET statuses/sample', function(done) {
-    twitter.stream('statuses/sample', function(stream) {
-      stream.on('data', function (data) {
-        received.push(data);
-      });
-
-      setTimeout(function() {
-        stream.destroy();
-      }, 50000);
-      
-      stream.on('destroy', function(msg) {
-        received.length.should.be.above(1);
-        done();
-      });
-    });
-  });
-
   it('GET statuses/sample as a native stream and pipe to a file', function(done) {
     twitter.stream('statuses/sample', function(stream) {
-      var output = fs.createWriteStream('./out.json');
-      stream
-        .pipe(output)
-        .on('end', function(tweet) {
-          received = JSON.parse(fs.readFileSync('out.json'));
-          received.length.should.be.above(1);
-          done();
-        });
+      var output = fs.createWriteStream('./test/out.json');
+      
+      stream.pipe(output);
+
+      stream.on('end', function() {
+        var received = fs.statSync('./test/out.json').size;
+        received.should.be.above(1);
+        done();
+      });
 
       setTimeout(function() {
         stream.destroy();
-      }, 50000);
+      }, 5000);
     });
   });
 });
